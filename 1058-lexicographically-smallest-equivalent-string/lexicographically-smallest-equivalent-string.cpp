@@ -3,47 +3,44 @@ public:
     string smallestEquivalentString(string s1, string s2, string baseStr) {
         vector<set<char>> groups;
 
-       for (int i = 0; i < s1.length(); ++i) {
-            char a = s1[i];
-            char b = s2[i];
-            int groupA = -1, groupB = -1;
+        for (int i = 0; i < s1.size(); ++i) {
+            char a = s1[i], b = s2[i];
+            int g1 = -1, g2 = -1;
 
+            // Find group for a and b
             for (int j = 0; j < groups.size(); ++j) {
-                if (groups[j].count(a)) groupA = j;
-                if (groups[j].count(b)) groupB = j;
+                if (groups[j].count(a)) g1 = j;
+                if (groups[j].count(b)) g2 = j;
             }
 
-            if (groupA == -1 && groupB == -1) {
-                set<char> newSet = {a, b};
-                groups.push_back(newSet);
-            } else if (groupA != -1 && groupB == -1) {
-                groups[groupA].insert(b);
-            } else if (groupA == -1 && groupB != -1) {
-                groups[groupB].insert(a);
-            } else if (groupA != groupB) {
-                groups[groupA].insert(groups[groupB].begin(), groups[groupB].end());
-                groups.erase(groups.begin() + groupB);
+            if (g1 == -1 && g2 == -1) {
+                groups.push_back({a, b});
+            } else if (g1 != -1 && g2 == -1) {
+                groups[g1].insert(b);
+            } else if (g1 == -1 && g2 != -1) {
+                groups[g2].insert(a);
+            } else if (g1 != g2) {
+                // Merge g2 into g1 and erase g2
+                groups[g1].insert(groups[g2].begin(), groups[g2].end());
+                groups.erase(groups.begin() + g2);
             }
         }
 
-        unordered_map<char, char> mp;
+        // Build map from each character to its smallest in the group
+        unordered_map<char, char> smallest;
         for (auto& group : groups) {
-            char smallest = *group.begin();
-            for (char c : group) {
-                if (smallest > c) smallest = c;
-            }
-            for (char c : group) {
-                mp[c] = smallest;
-            }
+            char minChar = *group.begin();
+            for (char c : group)
+                if (c < minChar) minChar = c;
+            for (char c : group)
+                smallest[c] = minChar;
         }
 
-        // Step 3: Build result using mapped characters
-        string ans = "";
+        string res = "";
         for (char c : baseStr) {
-            if (mp.count(c)) ans += mp[c];
-            else ans += c;
+            res += (smallest.count(c) ? smallest[c] : c);
         }
 
-        return ans;
+        return res;
     }
 };
