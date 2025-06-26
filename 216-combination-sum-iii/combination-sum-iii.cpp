@@ -1,24 +1,27 @@
 class Solution {
 public:
-    void helper(int start, int k, int n, vector<int>& current, vector<vector<int>>& result) {
-        if (current.size() == k) {
-            int sum = 0;
-            for (int x : current) sum += x;
-            if (sum == n) result.push_back(current);
+    void backtrack(int start, int k, int n, vector<int>& combo, vector<vector<int>>& res) {
+        if (k == 0 && n == 0) {
+            res.push_back(combo);
             return;
         }
+        if (k == 0 || n < 0) return;
 
-        for (int i = start; i <= 9; ++i) {
-            current.push_back(i);
-            helper(i + 1, k, n, current, result);
-            current.pop_back(); // backtrack
-        }
+        if (start > 9) return;
+
+        // Include current number
+        combo.push_back(start);
+        backtrack(start + 1, k - 1, n - start, combo, res);
+        combo.pop_back();
+
+        // Exclude current number
+        backtrack(start + 1, k, n, combo, res);
     }
 
     vector<vector<int>> combinationSum3(int k, int n) {
-        vector<vector<int>> result;
-        vector<int> current;
-        helper(1, k, n, current, result);
-        return result;
+        vector<vector<int>> res;
+        vector<int> combo;
+        backtrack(1, k, n, combo, res);
+        return res;
     }
 };
